@@ -2,6 +2,8 @@ import numpy as np
 
 from object import Object
 import config
+from colorama import Fore, Back
+
 
 class Ball(Object):
 
@@ -13,9 +15,7 @@ class Ball(Object):
         self._vel = vel
         self._rep = 'O'
         self._fast = 1
-
-    def getRep(self):
-        return self._rep
+        self._col = np.full(self._size, Fore.RED, dtype=object )
     
     def getVelocity(self):
         return self._vel
@@ -29,8 +29,9 @@ class Ball(Object):
         
         if self._pos[0] <= 1:
             self._vel[0] = - self._vel[0] 
+            self._pos[0] = 1
         
-        if self._pos[1] + self._vel[1]< 0 or self._pos[1] + self._vel[1] > config.WIDTH - 1:
+        if self._pos[1] + self._vel[1] < 0 or self._pos[1] + self._vel[1] > config.WIDTH - 1:
             self._vel[1] = -self._vel[1]
         
         if self._pos[0] >= config.HEIGHT - 2:
@@ -47,7 +48,7 @@ class Ball(Object):
         
     def moveWithPaddle(self, val):
 
-        if self._stickPaddle and self._pos[0] >= (config.HEIGHT-3):
+        if self._stickPaddle and self._pos[0] >= (config.HEIGHT-4):
             self._pos[1] += val
             self.handle()
 

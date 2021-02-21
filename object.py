@@ -1,5 +1,6 @@
 import numpy as np
 import config
+from colorama import Fore, Back
 
 class Object:
 
@@ -8,6 +9,8 @@ class Object:
         self._pos = pos
         self._size = size
         self._vel = np.array([0,0])
+        self._col = np.full((size[0], size[1]), '', dtype=object)
+        self._rep = np.full(size, '')
 
     def handle(self):
         if self._pos[0]  < 0:
@@ -27,3 +30,9 @@ class Object:
 
     def getSize(self):
         return self._size
+
+    def getColor(self):
+        return self._col
+
+    def getRep(self):
+        return self._rep

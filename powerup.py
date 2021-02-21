@@ -10,6 +10,7 @@ class Powerup(Object):
         self._isVisible = False
         self._isActivated = False
         self._deactivateTime = 0
+        self._type = ' '
     
     def release(self):
         self._isVisible = True
@@ -39,6 +40,9 @@ class Powerup(Object):
     
     def getTime(self):
         return self._deactivateTime
+
+    def getType(self):
+        return self._type
         
 class FastBall(Powerup):
 
@@ -59,12 +63,6 @@ class FastBall(Powerup):
         for i in ball:
             i.decreaseSpeed()
 
-    def getRep(self):
-        return self._rep
-
-    def getType(self):
-        return self._type
-
 
 class LongPaddlePowerup(Powerup):
     def __init__(self, pos):
@@ -77,14 +75,9 @@ class LongPaddlePowerup(Powerup):
             game.changeLongPaddle()
     
     def deactivate(self, game):
-        game.changeNormalPaddle()
+        game.changeShortPaddle()
         self._isActivated = False
     
-    def getRep(self):
-        return self._rep
-    
-    def getType(self):
-        return self._type
 
 class ShortPaddlePowerup(Powerup):
     def __init__(self, pos):
@@ -97,14 +90,10 @@ class ShortPaddlePowerup(Powerup):
             game.changeShortPaddle()
 
     def deactivate(self, game):
-        game.changeNormalPaddle()
+        game.changeLongPaddle()
         self._isActivated = False
     
-    def getRep(self):
-        return self._rep
     
-    def getType(self):
-        return self._type
 
 class StickBall(Powerup):
     def __init__(self, pos):
@@ -123,12 +112,6 @@ class StickBall(Powerup):
             i.releasePaddle()
         self._isActivated = False
 
-    def getRep(self):
-        return self._rep
-
-    def getType(self):
-        return self._type
-
 class ThruBall(Powerup):
     def __init__(self, pos):
         super().__init__(pos)
@@ -145,11 +128,6 @@ class ThruBall(Powerup):
             i.makeNormal()
         self._isActivated = False
 
-    def getRep(self):
-        return self._rep
-
-    def getType(self):
-        return self._type
 
 class MultiplyBall(Powerup):
     def __init__(self, pos):
@@ -167,10 +145,4 @@ class MultiplyBall(Powerup):
         game.decreaseBalls(self._numBalls)
         self._isActivated = False
 
-    def getRep(self):
-        return self._rep
-
-    def getType(self):
-        return self._type
-    
 
