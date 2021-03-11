@@ -41,7 +41,7 @@ class Screen:
         self.displayColor[_x: _x + _h, _y: _y + _w] = col
         self.displayStatic[_x: _x + _h, _y: _y + _w] = np.full((_h, _w), '')
 
-    def gameOver(self, win):
+    def gameOver(self, win, score):
 
         arr,col = getGameOver(win)
 
@@ -54,6 +54,9 @@ class Screen:
             print('')
 
         print(Style.RESET_ALL)
+
+        if win:
+            print("Final Score: ",score)
         time.sleep(1)
 
     def flash(self):

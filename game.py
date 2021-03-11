@@ -55,7 +55,7 @@ class Game:
             self.drawBalls()
             self._screen.printScreen()
             time_temp = int(time.time() - self._start_time)
-            self._printscore = self._score + max(0, 1000 - time_temp)
+            self._printscore = int(self._score + max(0, (1000 - time_temp)/100))
             print("Lives ", self._lives, "   Score ", self._printscore, "   Time ", time_temp)
 
     def moveBalls(self):
@@ -68,7 +68,7 @@ class Game:
             self._lives = self._lives - 1
             self._screen.flash()
             if self._lives == 0:
-                self._screen.gameOver(win=False)
+                self._screen.gameOver(win=False, score=0)
                 quit()
             for i in self.powerup:
                 if i.isActivated():
@@ -131,7 +131,8 @@ class Game:
                     gameOver = False
 
         if gameOver == True:
-            self._screen.gameOver(win=True)
+            time_temp = int(time.time() - self._start_time)
+            self._screen.gameOver(win=True, score=(self._score + max(0, (1000 - time_temp)/100)))
             quit()
 
         for i in self.powerup:

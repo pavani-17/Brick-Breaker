@@ -79,8 +79,9 @@ class Ball(Object):
         self._fast = self._fast * 2
     
     def decreaseSpeed(self):
-        self._fast = self._fast/2
-        self._vel[1] = self._vel[1]/2
+        if self._fast > 1:
+            self._fast = self._fast/2
+            self._vel[1] = self._vel[1]/2
     
     def stickPaddle(self):
         self._paddleGrab = True
