@@ -13,7 +13,8 @@ class Ufo(Object):
 
         super().__init__(pos,np.array([8,41]))
         self._rep = getUfo()
-        self._strength = 25
+        self._strength = 20
+        self._isVisible = True
 
     def setPosition(self, pos):
         self._pos[1] = pos[1] - 20
@@ -51,6 +52,11 @@ class Ufo(Object):
 
         if collide:
             self._strength = self._strength - 1
+            if(self._strength == 0):
+                self._isVisible = False
+    
+    def isVisible(self):
+        return self._isVisible
 
 
 class Bomb(Object):

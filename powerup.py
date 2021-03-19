@@ -168,11 +168,11 @@ class ShootLaser(Powerup):
     def activate(self, paddle, game):
         if self._isActivated:
             paddle.activateShoots()
-            game.changeLaserStatus()
+            game.changeLaserStatus(True)
 
     def deactivate(self, paddle, game):
         paddle.deactivateShoots()
         self._isActivated = False
-        game.changeLaserStatus()
+        game.changeLaserStatus(False)
 
 

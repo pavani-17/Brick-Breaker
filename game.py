@@ -37,20 +37,33 @@ class Game:
         self._isUfo = False
         get = Get()
         self.bricks_pos_l2 = np.array([
-           [21, 66, 2, 2, 0], [21, 75,3, 1, 1], [21, 84, 1, 3, 2], 
-           [19,70,2,4,3], [19,79,2,5,4],[19,88,3,6,5], [19, 61,3,2,6],
-           [17,75,-1, 0,0], [17,84,-1, 0,0], [17,66,-1, 0,0], [17, 93, -1, 0 ,0], [17, 57, -1, 0, 0], [17,48,-1,0,0], [17,102,-1,0,0],
-           [15, 79, 1, 1, 7], [15, 70, 1, 3, 8], [15,88,0,2,9], [15, 61,0,6,10],
-           [13, 75, 1, 4, 11], [13, 66, 2, 5, 12], [13, 84, 3, 6, 13], 
+           [18, 66, 2, 2, 0], [18, 75,3, 1, 1], [18, 84, 1, 3, 2], 
+           [16,70,2,4,3], [16,79,2,5,4],[16,88,3,6,5], [16, 61,3,2,6],
+           [14,75,-1, 0,0], [14,84,-1, 0,0], [14,66,-1, 0,0], [14, 93, -1, 0 ,0], [14, 57, -1, 0, 0], [14,48,-1,0,0], [14,102,-1,0,0],
+           [12, 79, 1, 1, 7], [12, 70, 1, 3, 8], [12,88,0,2,9], [12, 61,0,6,10],
+           [10, 75, 1, 4, 11], [10, 66, 2, 5, 12], [10, 84, 3, 6, 13], 
         ])
         self.bricks_pos_l1 = np.array([
             [8,14,0,0,0], [8,23,1,1,0], [8, 32, 0, 0,0], [6, 23, 2, 4,1], [4,14,0,0,0], [4,23,1,2,2], [4, 32, 0, 0,0],
            [8,127,0,0,0], [8,136,1,3,3], [8,145,0,0,0],[6,136,2,5,4],[4,127,0,0,0], [4,136,1,6,5], [4,145,0,0,0], 
-           [19,75,1,7,6], [19, 84, 2, 0, 0],
-           [17, 75, 1,0,0], [17, 84, 2,0,0],
-           [15,75,4,0,0], [15,84,4,0,0],
+           [14,75,4,7,6], [14, 84, 4, 7, 7],
+           [12, 75, 4,0,0], [12, 84, 4,0,0],
+           [10,75,4,0,0], [10,84,4,0,0],
         ])
         self.bricks_pos_l3 = np.array([
+            [15,5,0,0,0], [15,150,0,0,0]
+        ])
+        self.ufo_layer1 = np.array([
+            [15,5,0,0,0],[15,150,0,0,0],
+            [10,3,1,0,0], [10,12,2,0,0], [10,21,3,0,0], [10,30,2,0,0], [10,39,1,0,0],[10,48,2,0,0], [10,57,3,0,0], [10,66,2,0,0], [10,75,1,0,0], [10,84,2,0,0],
+            [10, 93, 3, 0, 0], [10,102,2,0,0], [10,111,1,0,0], [10,120,2,0,0], [10,129,3,0,0],[10,138,2,0,0], [10,147,1,0,0], [10,156,2,0,0]
+        ])
+        self.ufo_layer2 = np.array([
+            [15,5,0,0,0],[15,150,0,0,0],
+            [10,3,1,0,0], [10,12,2,0,0], [10,21,3,0,0], [10,30,2,0,0], [10,39,1,0,0],[10,48,2,0,0], [10,57,3,0,0], [10,66,2,0,0], [10,75,1,0,0], [10,84,2,0,0],
+            [10, 93, 3, 0, 0], [10,102,2,0,0], [10,111,1,0,0], [10,120,2,0,0], [10,129,3,0,0],[10,138,2,0,0], [10,147,1,0,0], [10,156,2,0,0],
+            [13,3,1,0,0], [13,12,2,0,0], [13,21,3,0,0], [13,30,2,0,0], [13,39,1,0,0],[13,48,2,0,0], [13,57,3,0,0], [13,66,2,0,0], [13,75,1,0,0], [13,84,2,0,0],
+            [13, 93, 3, 0, 0], [13,102,2,0,0], [13,111,1,0,0], [13,120,2,0,0], [13,129,3,0,0],[13,138,2,0,0], [13,147,1,0,0], [13,156,2,0,0]
         ])
         self.bricks_pos = self.bricks_pos_l1
         self.powerup = []
@@ -60,20 +73,23 @@ class Game:
         self.lastlaser = self._start_time
         self.bombtime = self._start_time
         self._bombs = []
-        
+        self._spawn1 = False
+        self._spawn2 = False
+
         self.lastMove = self._start_time
         while True:
             self._screen.clear()
             self._screen.drawBackGround()
             inchar = input_to(get.__call__)
             self.handleInput(inchar)
-            self.drawUfo()
             self.createLaser()
             self.moveBalls()
             self._screen.drawObject(self._paddle)
+            self.spawnBricks()
             self.drawBricks()
             self.handleCollisionBallPaddle() 
-            self.handleCollisionBallBrick()     
+            self.handleCollisionBallBrick() 
+            self.drawUfo()    
             self.drawBalls()
             self._screen.printScreen()
             time_temp = int(time.time() - self._start_time)
@@ -86,11 +102,11 @@ class Game:
                 strength = self._ufo.getStrength()
                 for i in range(0,strength):
                     print('o',end="")
-                for i in range(strength,50):
+                for i in range(strength,20):
                     print(' ',end="")
                 print()
             else:
-                for i in range(0,70):
+                for i in range(0,30):
                     print(' ',end="")
                 print()
 
@@ -103,11 +119,34 @@ class Game:
             self.bombtime = time.time()
 
         if self._isUfo:
-            self._screen.drawObject(self._ufo)
+            if self._ufo.isVisible:
+                self._screen.drawObject(self._ufo)
         
             for i in self._bombs:
                 if i.isVisible():
                     self._screen.drawObject(i)
+
+    def spawnBricks(self):
+        if self._isUfo:
+            if self._ufo.getStrength() <= 10 and self._spawn1 is False:
+                self._spawn1 = True
+                self.bricks_pos = self.ufo_layer1
+
+                for j in range(self._len, len(self.ufo_layer1)):
+                    i = self.ufo_layer1[j]
+                    temp = Breakable(np.array([i[0], i[1]]),i[2])
+                    self._brick.append(temp)
+                self._len = len(self._brick)
+            
+            if self._ufo.getStrength() <= 5 and self._spawn2 is False:
+                self._spawn2 = True
+                self.bricks_pos = self.ufo_layer2
+
+                for j in range(self._len, len(self.ufo_layer2)):
+                    i = self.ufo_layer2[j]
+                    temp = Breakable(np.array([i[0], i[1]]), i[2])
+                    self._brick.append(temp)
+                self._len = len(self._brick)
 
     def createLaser(self):
         if(self.lastlaser + 1 < time.time() and self._laser):
@@ -214,7 +253,6 @@ class Game:
                 self.powerup.append(temp1)
 
 
-        self._brick = np.array(self._brick)
 
     def nextLevel(self):
         self._level += 1
@@ -255,7 +293,7 @@ class Game:
                 if i.getType() != 0:
                     levelDone = False
 
-        if self._isUfo and self._ufo.getStrength() != 0:
+        if self._isUfo and self._ufo.isVisible():
             levelDone = False
 
         if levelDone == True:
@@ -289,8 +327,11 @@ class Game:
                 elif p == '|':
                     i.deactivate(self._paddle, self)
 
-    def changeLaserStatus(self):
-        self._laser = not(self._laser)
+    def changeLaserStatus(self, val):
+        self._laser = val
+        if val == False:
+            if self._lasertime < time.time():
+                self._laser = True
 
     def changeLongPaddle(self):
         x, y = self._paddle.getPosition()
