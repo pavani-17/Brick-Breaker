@@ -176,3 +176,18 @@ class ShootLaser(Powerup):
         game.changeLaserStatus(False)
 
 
+class FireBall(Powerup):
+    def __init__(self, pos):
+        super().__init__(pos)
+        self._rep = np.array(['!'])
+        self._type = '!'
+
+    def activate(self, ball):
+        if self._isActivated:
+            for i in ball:
+                i.makeFireBall()
+
+    def deactivate(self, ball):
+        for i in ball:
+            i.makeNormal1()
+        self._isActivated = False

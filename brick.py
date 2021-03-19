@@ -21,10 +21,12 @@ class Brick(Object):
         x1, y1 = ball.getPosition()
         vx, vy = ball.getVelocity()
         obj_type = ball.getType()
-        if obj_type is 'Ball':
+        if obj_type == 'Ball':
             temp = ball.isThruBall()
+            temp1 = ball.isFireBall()
         else:
             temp = False
+            temp1 = False
         collide = False
 
         ## Right collision
@@ -33,7 +35,11 @@ class Brick(Object):
             if temp:
                 self._isVisible = False
                 collide = True
-            elif obj_type is 'Ball':
+            elif temp1: 
+                self._isVisible = False
+                collide = True
+                ball.collideBrick(np.array([1,-1]))
+            elif obj_type == 'Ball':
                 ball.collideBrick(np.array([1,-1]))
             else:
                 ball.hideVisibility()
@@ -45,7 +51,11 @@ class Brick(Object):
             if temp:
                 self._isVisible = False
                 collide = True
-            elif obj_type is 'Ball':
+            elif temp1:
+                self._isVisible = False
+                collide = True
+                ball.collideBrick(np.array([1,-1]))
+            elif obj_type == 'Ball':
                 ball.collideBrick(np.array([1,-1]))
             else:
                 ball.hideVisibility()
@@ -56,7 +66,11 @@ class Brick(Object):
             if temp:
                 self._isVisible = False
                 collide = True
-            elif obj_type is 'Ball':
+            elif temp1:
+                self._isVisible = False
+                collide = True
+                ball.collideBrick(np.array([-1,1]))
+            elif obj_type == 'Ball':
                 ball.collideBrick(np.array([-1,1]))
             else:
                 ball.hideVisibility()
@@ -66,7 +80,11 @@ class Brick(Object):
             if temp:
                 self._isVisible = False
                 collide = True
-            elif obj_type is 'Ball':
+            elif temp1:
+                self._isVisible = False
+                collide = True
+                ball.collideBrick(np.array([-1,1]))
+            elif obj_type == 'Ball':
                 ball.collideBrick(np.array([-1,1]))
             else:
                 ball.hideVisibility()
@@ -74,6 +92,9 @@ class Brick(Object):
 
         if collide:
             game.incrementScore(5)
+            if temp1:
+                game.explodeBricks(self._pos, self._size)
+                
 
     def moveDown(self):
         self._pos[0] += 1
@@ -109,10 +130,12 @@ class Breakable(Brick):
         vx, vy = ball.getVelocity()
 
         obj_type = ball.getType()
-        if obj_type is 'Ball':
+        if obj_type == 'Ball':
             temp = ball.isThruBall()
+            temp1 = ball.isFireBall()
         else:
             temp = False
+            temp1 = False
         collide = False
         val = self._strength
 
@@ -122,6 +145,9 @@ class Breakable(Brick):
             collide = True
             if temp:
                 self._strength = 0
+            elif temp1:
+                self._strength = 0
+                ball.collideBrick(np.array([1,-1]))
             elif obj_type == 'Ball':
                 ball.collideBrick(np.array([1,-1]))
             else:
@@ -134,6 +160,9 @@ class Breakable(Brick):
             collide = True
             if temp:
                 self._strength = 0
+            elif temp1:
+                self._strength = 0
+                ball.collideBrick(np.array([1,-1]))
             elif obj_type == 'Ball':
                 ball.collideBrick(np.array([1,-1]))
             else:
@@ -144,7 +173,10 @@ class Breakable(Brick):
             collide = True
             if temp:
                 self._strength = 0
-            elif obj_type is 'Ball':
+            elif temp1:
+                self._strength = 0
+                ball.collideBrick(np.array([-1,1]))
+            elif obj_type == 'Ball':
                 ball.collideBrick(np.array([-1,1]))
             else:
                 ball.hideVisibility()
@@ -153,7 +185,10 @@ class Breakable(Brick):
             collide = True
             if temp:
                 self._strength = 0
-            elif obj_type is 'Ball':
+            elif temp1:
+                self._strength = 0
+                ball.collideBrick(np.array([-1,1]))
+            elif obj_type == 'Ball':
                 ball.collideBrick(np.array([-1,1]))
             else:
                 ball.hideVisibility()
@@ -164,6 +199,9 @@ class Breakable(Brick):
         if collide:
             if temp:
                 game.incrementScore(val*abs(vy+1))
+            elif temp1:
+                game.explodeBricks(self._pos, self._size)
+                game.incrementScore(abs(vy+1))
             else:
                 game.incrementScore(abs(vy+1))
 
@@ -205,10 +243,12 @@ class RainbowBrick(Breakable):
         vx, vy = ball.getVelocity()
 
         obj_type = ball.getType()
-        if obj_type is 'Ball':
+        if obj_type == 'Ball':
             temp = ball.isThruBall()
+            temp1 = ball.isFireBall()
         else:
             temp = False
+            temp1 = False
         collide = False
         val = self._strength
 
@@ -260,6 +300,9 @@ class RainbowBrick(Breakable):
             self._touched = True
             if temp:
                 game.incrementScore(val*abs(vy+1))
+            elif temp1:
+                game.explodeBricks(self._pos, self._size)
+                game.incrementScore(abs(vy+1))
             else:
                 game.incrementScore(abs(vy+1))
 

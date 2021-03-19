@@ -16,6 +16,7 @@ class Ball(Object):
         self._rep = 'O'
         self._fast = 1
         self._col = np.full(self._size, Fore.RED, dtype=object )
+        self._fireBall = False
     
     def getVelocity(self):
         return self._vel
@@ -63,12 +64,21 @@ class Ball(Object):
 
     def isThruBall(self):
         return self._thruBall
+    
+    def isFireBall(self):
+        return self._fireBall
 
     def makeThruBall(self):
         self._thruBall = True
+    
+    def makeFireBall(self):
+        self._fireBall = True
 
     def makeNormal(self):
         self._thruBall = False
+
+    def makeNormal1(self):
+        self._fireBall = True
     
     def collideBrick(self, vel):
         self._vel = self._vel * vel

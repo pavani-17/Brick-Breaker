@@ -52,8 +52,9 @@ class Ufo(Object):
 
         if collide:
             self._strength = self._strength - 1
-            if(self._strength == 0):
+            if(self._strength <= 0):
                 self._isVisible = False
+                game.removeUfo()
     
     def isVisible(self):
         return self._isVisible

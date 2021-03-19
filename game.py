@@ -9,7 +9,7 @@ from paddle import Paddle
 from input import input_to, Get
 from ball import Ball
 from brick import Breakable, Brick, ExplodingBrick, RainbowBrick
-from powerup import FastBall, LongPaddlePowerup, ShortPaddlePowerup, StickBall, ThruBall, MultiplyBall,ShootLaser
+from powerup import FastBall, LongPaddlePowerup, ShortPaddlePowerup, StickBall, ThruBall, MultiplyBall,ShootLaser, FireBall
 from laser import Laser
 from ufo import Ufo, Bomb
 
@@ -46,7 +46,7 @@ class Game:
         self.bricks_pos_l1 = np.array([
             [8,14,0,0,0], [8,23,1,1,0], [8, 32, 0, 0,0], [6, 23, 2, 4,1], [4,14,0,0,0], [4,23,1,2,2], [4, 32, 0, 0,0],
            [8,127,0,0,0], [8,136,1,3,3], [8,145,0,0,0],[6,136,2,5,4],[4,127,0,0,0], [4,136,1,6,5], [4,145,0,0,0], 
-           [14,75,4,7,6], [14, 84, 4, 7, 7],
+           [14,75,4,7,6], [14, 84, 4, 8, 7],
            [12, 75, 4,0,0], [12, 84, 4,0,0],
            [10,75,4,0,0], [10,84,4,0,0],
         ])
@@ -147,6 +147,9 @@ class Game:
                     temp = Breakable(np.array([i[0], i[1]]), i[2])
                     self._brick.append(temp)
                 self._len = len(self._brick)
+
+    def removeUfo(self):
+        self._isUfo = False
 
     def createLaser(self):
         if(self.lastlaser + 1 < time.time() and self._laser):
@@ -249,6 +252,8 @@ class Game:
                     temp1 = MultiplyBall(np.array([i[0], i[1]]))
                 elif(i[3] == 7):
                     temp1 = ShootLaser(np.array([i[0], i[1]])) 
+                elif(i[3] == 8):
+                    temp1 = FireBall(np.array([i[0], i[1]]))
                 
                 self.powerup.append(temp1)
 
@@ -303,7 +308,7 @@ class Game:
             if i.isVisible():
                 i.move(self._paddle)
                 p = i.getType()
-                if p == 'F' or p == 'B' or p == 'T':
+                if p == 'F' or p == 'B' or p == 'T' or p == '!':
                     i.activate(self._ball)
                     i.setTime(time.time() + 50)
                 elif p == 'L' or p == 'S':
@@ -320,7 +325,7 @@ class Game:
                 self._screen.drawObject(i)
             if i.isActivated() and i.getTime() < time.time():
                 p = i.getType()
-                if p == 'F' or p == 'B' or p == 'T':
+                if p == 'F' or p == 'B' or p == 'T' or p == '!':
                     i.deactivate(self._ball)
                 elif p == 'L' or p == 'S' or p == 'M':
                     i.deactivate(self)
