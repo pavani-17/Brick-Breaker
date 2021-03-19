@@ -6,10 +6,11 @@ from object import Object
 
 class Paddle(Object):
 
-    def __init__(self, pos, size):
+    def __init__(self, pos, size, shoots=False):
         super().__init__(pos, size)
         self._vel = np.array([0,0])
-        
+        self._shoots = shoots
+
         list = []
         
         for i in range(self._size[1]):
@@ -23,6 +24,8 @@ class Paddle(Object):
         self._rep = np.array([])
 
         self._rep = np.append(self._rep, np.array(list), axis=0)
+        
+        self.addShoots()
 
     def in_child(self, pos, size):
         super().__init__(pos, size)
@@ -40,6 +43,51 @@ class Paddle(Object):
             for i in ball:
                 i.moveWithPaddle(+2)
             self.handle()
+
+    def addShoots(self):
+
+        if self._shoots:
+            list = []
+        
+            for i in range(self._size[1]):
+                if i==0:
+                    list.append('(')
+                elif i == 1:
+                    list.append('V')
+                elif i == (self._size[1]-1):
+                    list.append(')')
+                elif i == (self._size[1]-2):
+                    list.append('V')
+                else:
+                    list.append('I')
+            
+            self._rep = np.array([])
+
+            self._rep = np.append(self._rep, np.array(list), axis=0)
+
+    def activateShoots(self):
+        self._shoots = True
+        self.addShoots()
+
+    def deactivateShoots(self):
+        self._shoots = False
+        list = []
+        
+        for i in range(self._size[1]):
+            if i==0:
+                list.append('(')
+            elif i == (self._size[1]-1):
+                list.append(')')
+            else:
+                list.append('I')
+        
+        self._rep = np.array([])
+
+        self._rep = np.append(self._rep, np.array(list), axis=0)
+
+    def isShoots(self):
+        return self._shoots
+
 
 
 

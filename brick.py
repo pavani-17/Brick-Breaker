@@ -1,6 +1,7 @@
 from object import Object
 import numpy as np
 from colorama import Fore, Back, Style
+import config
 
 class Brick(Object):
 
@@ -19,7 +20,11 @@ class Brick(Object):
     def collideBall(self, ball, game):
         x1, y1 = ball.getPosition()
         vx, vy = ball.getVelocity()
-        temp = ball.isThruBall()
+        obj_type = ball.getType()
+        if obj_type is 'Ball':
+            temp = ball.isThruBall()
+        else:
+            temp = False
         collide = False
 
         ## Right collision
@@ -28,8 +33,11 @@ class Brick(Object):
             if temp:
                 self._isVisible = False
                 collide = True
-            else:
+            elif obj_type is 'Ball':
                 ball.collideBrick(np.array([1,-1]))
+            else:
+                ball.hideVisibility()
+                return
 
         ## Left collision
 
@@ -37,26 +45,42 @@ class Brick(Object):
             if temp:
                 self._isVisible = False
                 collide = True
-            else:
+            elif obj_type is 'Ball':
                 ball.collideBrick(np.array([1,-1]))
+            else:
+                ball.hideVisibility()
+                return
 
         ## Vertical Collision
         if (x1 < self._pos[0] and x1 + vx >= self._pos[0]) and (y1+vy >= self._pos[1] and y1+vy < self._pos[1] + self._size[1]):
             if temp:
                 self._isVisible = False
                 collide = True
-            else:
+            elif obj_type is 'Ball':
                 ball.collideBrick(np.array([-1,1]))
+            else:
+                ball.hideVisibility()
+                return
 
         if (x1 >= self._pos[0] + self._size[0] and x1 + vx < self._pos[0] + self._size[0]) and (y1+vy >= self._pos[1] and y1+vy < self._pos[1] + self._size[1]):
             if temp:
                 self._isVisible = False
                 collide = True
-            else:
+            elif obj_type is 'Ball':
                 ball.collideBrick(np.array([-1,1]))
+            else:
+                ball.hideVisibility()
+                return
 
         if collide:
             game.incrementScore(5)
+
+    def moveDown(self):
+        self._pos[0] += 1
+
+        if self._pos[0] + self._size[0] >= config.HEIGHT-3:
+            return True
+        return False 
 
     def explodeBrick(self, game):
         self._isVisible = False
@@ -67,6 +91,9 @@ class Brick(Object):
 
     def getType(self):
         return self._type
+    
+    def isRainbow(self):
+        return False
 
 class Breakable(Brick):
     def __init__(self, pos, strength):
@@ -81,7 +108,11 @@ class Breakable(Brick):
         x1, y1 = ball.getPosition()
         vx, vy = ball.getVelocity()
 
-        temp = ball.isThruBall()
+        obj_type = ball.getType()
+        if obj_type is 'Ball':
+            temp = ball.isThruBall()
+        else:
+            temp = False
         collide = False
         val = self._strength
 
@@ -91,8 +122,11 @@ class Breakable(Brick):
             collide = True
             if temp:
                 self._strength = 0
-            else:
+            elif obj_type == 'Ball':
                 ball.collideBrick(np.array([1,-1]))
+            else:
+                ball.hideVisibility()
+            
 
         ## Left collision
 
@@ -100,23 +134,29 @@ class Breakable(Brick):
             collide = True
             if temp:
                 self._strength = 0
-            else:
+            elif obj_type == 'Ball':
                 ball.collideBrick(np.array([1,-1]))
+            else:
+                ball.hideVisibility()
 
         ## Vertical Collision
         if (x1 < self._pos[0] and x1 + vx >= self._pos[0]) and (y1+vy >= self._pos[1] and y1+vy <= self._pos[1] + self._size[1]):
             collide = True
             if temp:
                 self._strength = 0
-            else:
+            elif obj_type is 'Ball':
                 ball.collideBrick(np.array([-1,1]))
+            else:
+                ball.hideVisibility()
 
         if (x1 >= self._pos[0] + self._size[0] and x1 + vx < self._pos[0] + self._size[0]) and (y1+vy >= self._pos[1] and y1+vy <= self._pos[1] + self._size[1]):
             collide = True
             if temp:
                 self._strength = 0
-            else:
+            elif obj_type is 'Ball':
                 ball.collideBrick(np.array([-1,1]))
+            else:
+                ball.hideVisibility()
 
         if collide == True:
             self._strength = self._strength - 1
@@ -150,13 +190,100 @@ class Breakable(Brick):
         else:
             return (np.full(self._size, Fore.RED, dtype=object))
 
+class RainbowBrick(Breakable):
+
+    def __init__(self, pos):
+        super().__init__( pos, np.random.randint(1, 4))
+        self._touched = False
+        self._type = 4    
+
+    def collideBall(self, ball, game):
+
+        if self._strength == 0:
+            return
+        x1, y1 = ball.getPosition()
+        vx, vy = ball.getVelocity()
+
+        obj_type = ball.getType()
+        if obj_type is 'Ball':
+            temp = ball.isThruBall()
+        else:
+            temp = False
+        collide = False
+        val = self._strength
+
+        ## Right collision
+
+        if (y1 >= self._pos[1] + self._size[1] and y1 + vy < self._pos[1] + self._size[1]) and (x1 + vx >= self._pos[0] and x1+vx <= self._pos[0]+self._size[0]):
+            collide = True
+            if temp:
+                self._strength = 0
+            elif obj_type == 'Ball':
+                ball.collideBrick(np.array([1,-1]))
+            else:
+                ball.hideVisibility()
+
+        ## Left collision
+
+        if (y1 < self._pos[1] and y1 + vy >= self._pos[1]) and (x1 + vx >= self._pos[0] and x1+vx <= self._pos[0]+self._size[0]):
+            collide = True
+            if temp:
+                self._strength = 0
+            elif obj_type == 'Ball':
+                ball.collideBrick(np.array([1,-1]))
+            else:
+                ball.hideVisibility()
+
+        ## Vertical Collision
+        if (x1 < self._pos[0] and x1 + vx >= self._pos[0]) and (y1+vy >= self._pos[1] and y1+vy <= self._pos[1] + self._size[1]):
+            collide = True
+            if temp:
+                self._strength = 0
+            elif obj_type == 'Ball':
+                ball.collideBrick(np.array([-1,1]))
+            else:
+                ball.hideVisibility()
+
+        if (x1 >= self._pos[0] + self._size[0] and x1 + vx < self._pos[0] + self._size[0]) and (y1+vy >= self._pos[1] and y1+vy <= self._pos[1] + self._size[1]):
+            collide = True
+            if temp:
+                self._strength = 0
+            elif obj_type == 'Ball':
+                ball.collideBrick(np.array([-1,1]))
+            else:
+                ball.hideVisibility()
+
+        if collide == True:
+            self._strength = self._strength - 1
+        
+        if collide:
+            self._touched = True
+            if temp:
+                game.incrementScore(val*abs(vy+1))
+            else:
+                game.incrementScore(abs(vy+1))
+
+        if self._strength <= 0:
+            self._pos = np.array([0,0])
+            self._size = np.array([0,0])
+            self._isVisible = False
+            return 1
+        return 0
+
+    def changeStrength(self):
+        if not self._touched:
+            self._strength = (self._strength + 1)%3 + 1 
+    
+    def isRainbow(self):
+        return True
+
 class ExplodingBrick(Brick):
 
     def __init__(self, pos):
         super().__init__(pos)
         self._strength = 1
         self._col = np.full(self._size, Fore.MAGENTA, dtype=object)
-        self._type = 1
+        self._type = 4
     
     def collideBall(self, ball, game):
 

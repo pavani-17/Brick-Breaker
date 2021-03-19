@@ -1,5 +1,6 @@
 import numpy as np
 import time
+import config
 
 from object import Object
 
@@ -12,16 +13,29 @@ class Powerup(Object):
         self._deactivateTime = 0
         self._type = ' '
     
-    def release(self):
+    def release(self, vel):
         self._isVisible = True
-        self._vel = [1, 0]
+        self._vel = vel
+
+    def moveDown(self):
+        if(not self._isVisible):
+            self._pos[0] += 1
 
     def move(self, paddle):
         if self._isVisible:
+            self._vel[0] = self._vel[0] + 0.2
             self._pos = self._pos + self._vel
+
+            if self._pos[0] <= 1:
+                self._vel[0] = -self._vel[0]
+                self._pos[0] = 1
+            
+            if self._pos[1] + self._vel[1] < 0 or self._pos[1] + self._vel[1] > config.WIDTH - 1:
+                self._vel[1] = -self._vel[1]
+
             x1, y1 = paddle.getPosition()
             _, w = paddle.getSize()
-            if x1 == self._pos[0] and y1 <= self._pos[1] <= y1 + w:
+            if (x1 >= self._pos[0] and x1 <= self._pos[0] + self._vel[0]) and y1 <= self._pos[1] <= y1 + w:
                 self._isVisible = False
                 self._isActivated = True
             
@@ -144,5 +158,21 @@ class MultiplyBall(Powerup):
     def deactivate(self, game):
         game.decreaseBalls(self._numBalls)
         self._isActivated = False
+
+class ShootLaser(Powerup):
+    def __init__(self, pos):
+        super().__init__(pos)
+        self._rep = np.array(['|'])
+        self._type = '|'
+    
+    def activate(self, paddle, game):
+        if self._isActivated:
+            paddle.activateShoots()
+            game.changeLaserStatus()
+
+    def deactivate(self, paddle, game):
+        paddle.deactivateShoots()
+        self._isActivated = False
+        game.changeLaserStatus()
 
 

@@ -8,7 +8,7 @@ class Object:
 
         self._pos = pos
         self._size = size
-        self._vel = np.array([0,0])
+        self._vel = np.array([0,0], dtype='float32')
         self._col = np.full((size[0], size[1]), '', dtype=object)
         self._rep = np.full(size, '')
 

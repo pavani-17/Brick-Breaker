@@ -88,3 +88,9 @@ class Ball(Object):
 
     def releasePaddle(self):
         self._paddleGrab = False
+
+    def isStuckPaddle(self):
+        return self._stickPaddle
+
+    def getType(self):
+        return 'Ball'
