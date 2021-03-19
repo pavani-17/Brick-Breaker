@@ -11,6 +11,7 @@ from ball import Ball
 from brick import Breakable, Brick, ExplodingBrick, RainbowBrick
 from powerup import FastBall, LongPaddlePowerup, ShortPaddlePowerup, StickBall, ThruBall, MultiplyBall,ShootLaser
 from laser import Laser
+from ufo import Ufo, Bomb
 
 class Game:
 
@@ -32,6 +33,8 @@ class Game:
         self._move = False
         self._laser = False
         self._lasertime = self._start_time
+        self._ufo = None
+        self._isUfo = False
         get = Get()
         self.bricks_pos_l2 = np.array([
            [21, 66, 2, 2, 0], [21, 75,3, 1, 1], [21, 84, 1, 3, 2], 
@@ -48,7 +51,6 @@ class Game:
            [15,75,4,0,0], [15,84,4,0,0],
         ])
         self.bricks_pos_l3 = np.array([
-            [5,5,1,0,0]
         ])
         self.bricks_pos = self.bricks_pos_l1
         self.powerup = []
@@ -56,6 +58,8 @@ class Game:
         self.createBricks()
         self.laserbeams = []
         self.lastlaser = self._start_time
+        self.bombtime = self._start_time
+        self._bombs = []
         
         self.lastMove = self._start_time
         while True:
@@ -63,6 +67,7 @@ class Game:
             self._screen.drawBackGround()
             inchar = input_to(get.__call__)
             self.handleInput(inchar)
+            self.drawUfo()
             self.createLaser()
             self.moveBalls()
             self._screen.drawObject(self._paddle)
@@ -73,11 +78,36 @@ class Game:
             self._screen.printScreen()
             time_temp = int(time.time() - self._start_time)
             self._printscore = int(self._score + max(0, (1000 - time_temp)/100))
-            print("Lives ", self._lives, "   Score ", self._printscore, "   Time ", time_temp, "   Level ",self._level)
+            print("\r Lives ", self._lives, "   Score ", self._printscore, "   Time ", time_temp, "   Level ",self._level, "    ")
             if(self._laser):
-                print("Remaining Time ",-(time.time() - self._lasertime))
-            else:
+                print("Remaining Time ",-int(time.time() - self._lasertime))
+            elif self._isUfo:
+                print("Boss Strenth: ",end="")
+                strength = self._ufo.getStrength()
+                for i in range(0,strength):
+                    print('o',end="")
+                for i in range(strength,50):
+                    print(' ',end="")
                 print()
+            else:
+                for i in range(0,70):
+                    print(' ',end="")
+                print()
+
+    def drawUfo(self):
+        if self._isUfo and self.bombtime + 5 < time.time():
+            pos = self._ufo.getPosition()
+            size = self._ufo.getSize()
+            temp = Bomb(np.array([pos[0] + size[0], pos[1] + size[1]/2]))
+            self._bombs.append(temp)
+            self.bombtime = time.time()
+
+        if self._isUfo:
+            self._screen.drawObject(self._ufo)
+        
+            for i in self._bombs:
+                if i.isVisible():
+                    self._screen.drawObject(i)
 
     def createLaser(self):
         if(self.lastlaser + 1 < time.time() and self._laser):
@@ -89,6 +119,28 @@ class Game:
             self.laserbeams.append(temp)
             self.lastlaser = time.time()
 
+    def decreaseLives(self):
+        self._lives = self._lives - 1
+        self._screen.flash()
+        if self._lives == 0:
+            self._screen.gameOver(win=False, score=0)
+            quit()
+        for i in self.powerup:
+            if i.isActivated():
+                p = i.getType()
+                if p == 'F' or p == 'B' or p == 'T':
+                    i.deactivate(self._ball)
+                elif p == 'L' or p == 'S' or p == 'M':
+                    i.deactivate(self)
+                elif p == '|':
+                    i.deactivate(self._paddle, self)
+                    
+        self._balls = 1
+        x, y = self._paddle.getPosition()
+        _, w = self._paddle.getSize()
+        self._ball = []
+        self._ball.append(Ball(np.array([x-1, y + w/2]), np.array([-1, 0]), True))
+
     def moveBalls(self):
         for i in self._ball:
             if i.move():
@@ -96,27 +148,13 @@ class Game:
                 self._balls = self._balls - 1
 
         if self._balls == 0:
-            self._lives = self._lives - 1
-            self._screen.flash()
-            if self._lives == 0:
-                self._screen.gameOver(win=False, score=0)
-                quit()
-            for i in self.powerup:
-                if i.isActivated():
-                    p = i.getType()
-                    if p == 'F' or p == 'B' or p == 'T':
-                        i.deactivate(self._ball)
-                    elif p == 'L' or p == 'S' or p == 'M':
-                        i.deactivate(self)
-                    elif p == '|':
-                        i.deactivate(self._paddle, self)
-                    
-            self._balls = 1
-            x, y = self._paddle.getPosition()
-            _, w = self._paddle.getSize()
-            self._ball.append(Ball(np.array([x-1, y + w/2]), np.array([-1, 0]), True))
+            self.decreaseLives()
 
         for i in self.laserbeams:
+            if i.isVisible():
+                i.move()
+
+        for i in self._bombs:
             if i.isVisible():
                 i.move()
 
@@ -185,6 +223,10 @@ class Game:
             self.bricks_pos = self.bricks_pos_l2
         elif (self._level == 3):
             self.bricks_pos = self.bricks_pos_l3
+            pos = self._paddle.getPosition()
+            size = self._paddle.getSize()
+            self._isUfo = True
+            self._ufo = Ufo(np.array([2, pos[1] + size[1]/2]))
         else:
             time_temp = int(time.time() - self._start_time)
             self._screen.gameOver(win=True, score=(self._score + max(0, (1000 - time_temp)/100)))
@@ -212,6 +254,9 @@ class Game:
                 self._screen.drawObject(i)
                 if i.getType() != 0:
                     levelDone = False
+
+        if self._isUfo and self._ufo.getStrength() != 0:
+            levelDone = False
 
         if levelDone == True:
             self.nextLevel()
@@ -258,7 +303,7 @@ class Game:
         _, w = self._paddle.getSize()
         
         if (w>8):
-            self._paddle = Paddle(np.array([x,y]), np.array([1, w-3]))
+            self._paddle = Paddle(np.array([x,y]), np.array([1, w-3]), self._paddle.isShoots())
 
     def multiplyBalls(self):
         length = len(self._ball)
@@ -298,6 +343,9 @@ class Game:
                 if i.isVisible() and beam.isVisible():
                     if i.collideBall(beam, self) and self.bricks_pos[j][3] != 0:
                         self.powerup[self.bricks_pos[j][4]].release(np.array([1,0], dtype='float'))
+        
+        if self._isUfo:
+            self._ufo.collideBall(ball, self)
 
     def explodeBricks(self, pos, size):
         for j in range(self._len):
@@ -325,6 +373,17 @@ class Game:
                 if not i.isStuckPaddle():
                     collide = True
                 i.collidePaddle(speed/2)
+        
+        for i in self._bombs:
+            if i.isVisible():
+                x1, y1 = i.getPosition()
+                x2,y2 = self._paddle.getPosition()
+                _, w = self._paddle.getSize()
+
+                if x1 == x2 and y2 <= y1 <= y2+w:
+                    i.makeInvisible()
+                    self.decreaseLives()
+                
 
         if(collide and self._move):
             self.moveBricks()
@@ -338,3 +397,7 @@ class Game:
         if ch == 'l':
             self.nextLevel()
         self._paddle.move(ch, self._ball)
+        if self._isUfo:
+            pos = self._paddle.getPosition()
+            size = self._paddle.getSize()
+            self._ufo.setPosition(np.array([2, pos[1] + (size[1]/2)]))

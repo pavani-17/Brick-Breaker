@@ -31,7 +31,5 @@ def getUfo():
     with open('ufo.txt','r') as f:
         for line in f:
             arr.append(list(line.strip('\n')))
-    
     return np.array(arr,dtype=object)
 
-        
