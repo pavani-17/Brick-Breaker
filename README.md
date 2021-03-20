@@ -1,4 +1,4 @@
-A simple brickbreaker game written in Python, utilising OOPS concepts and is playable on the Terminal, not making use of any cursor libraries. The only libraries required are `numpy` and `colorama`.
+A simple brickbreaker game written in Python, utilising OOPS concepts and is playable on the Terminal, not making use of any cursor libraries. The only libraries required are `numpy` and `colorama`. `playsound` is used for the background sounds.
 
 ### Features of the Game
 * Bricks of various types such as normal (bricks which break after n number of hits, where n varies between {1, 2, 3} for each brick), unbreakable (bricks which can be broken only under special circumstances) and exploding bricks (bricks which explode and break all neighbouring bricks, irrespective of strength)
@@ -12,12 +12,15 @@ A simple brickbreaker game written in Python, utilising OOPS concepts and is pla
     4) Ball Multiplier: Multiplies the number of balls
     5) Thru Balls: Allows the ball to pass through and break any type of brick
     6) Paddle Grab: Allows the paddle to grab the ball and relaunch at will
+    7) Shoot Laser: Paddle shoots lasers to break bricks
+    8) Fire Ball: A brick explodes all neighbouring bricks
 
 ### Controls:
 
 <button>s</button> - Release the ball from the paddle <br>
 <button>a</button> - Move the paddle to the left <br>
 <button>d</button> - Move the paddle to the right <br>
+<button>l<button>  - Skip 
 
 Note that all these controls are case sensitive.
 
@@ -29,4 +32,5 @@ The game is written in a modular fashion, allowing new features to be added with
 
 * pip3 install numpy
 * pip3 install colorama
+* pip3 install playsound
 * python3 main.py

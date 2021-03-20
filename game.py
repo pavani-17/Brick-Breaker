@@ -166,6 +166,7 @@ class Game:
             self.lastlaser = time.time()
 
     def decreaseLives(self):
+        threading.Thread(target=playsound, args=('life.wav',), daemon=True).start()
         self._lives = self._lives - 1
         self._screen.flash()
         if self._lives == 0:
