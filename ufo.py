@@ -1,6 +1,8 @@
 from art import *
 from object import Object
 import config
+import threading
+from playsound import playsound
 
 class Ufo(Object):
 
@@ -51,6 +53,7 @@ class Ufo(Object):
             ball.collideBrick(np.array([-1,1]))
 
         if collide:
+            threading.Thread(target=playsound, args=('ball_wall.wav',), daemon=True).start()
             self._strength = self._strength - 1
             if(self._strength <= 0):
                 self._isVisible = False

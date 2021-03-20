@@ -2,6 +2,8 @@ from object import Object
 import numpy as np
 from colorama import Fore, Back, Style
 import config
+import threading
+from playsound import playsound
 
 class Brick(Object):
 
@@ -32,6 +34,8 @@ class Brick(Object):
         ## Right collision
 
         if (y1 >= self._pos[1] + self._size[1] and y1 + vy < self._pos[1] + self._size[1]) and (x1 + vx >= self._pos[0] and x1+vx <= self._pos[0]+self._size[0]):
+            if obj_type == 'Ball':
+                threading.Thread(target=playsound, args=('ball_wall.wav',), daemon=True).start()
             if temp:
                 self._isVisible = False
                 collide = True
@@ -48,6 +52,8 @@ class Brick(Object):
         ## Left collision
 
         if (y1 < self._pos[1] and y1 + vy >= self._pos[1]) and (x1 + vx >= self._pos[0] and x1+vx <= self._pos[0]+self._size[0]):
+            if obj_type == 'Ball':
+                threading.Thread(target=playsound, args=('ball_wall.wav',), daemon=True).start()
             if temp:
                 self._isVisible = False
                 collide = True
@@ -63,6 +69,8 @@ class Brick(Object):
 
         ## Vertical Collision
         if (x1 < self._pos[0] and x1 + vx >= self._pos[0]) and (y1+vy >= self._pos[1] and y1+vy < self._pos[1] + self._size[1]):
+            if obj_type == 'Ball':
+                threading.Thread(target=playsound, args=('ball_wall.wav',), daemon=True).start()
             if temp:
                 self._isVisible = False
                 collide = True
@@ -77,6 +85,8 @@ class Brick(Object):
                 return
 
         if (x1 >= self._pos[0] + self._size[0] and x1 + vx < self._pos[0] + self._size[0]) and (y1+vy >= self._pos[1] and y1+vy < self._pos[1] + self._size[1]):
+            if obj_type == 'Ball':
+                threading.Thread(target=playsound, args=('ball_wall.wav',), daemon=True).start()
             if temp:
                 self._isVisible = False
                 collide = True
@@ -89,6 +99,7 @@ class Brick(Object):
             else:
                 ball.hideVisibility()
                 return
+                
 
         if collide:
             game.incrementScore(5)
@@ -195,6 +206,9 @@ class Breakable(Brick):
 
         if collide == True:
             self._strength = self._strength - 1
+
+        if collide == True and obj_type == 'Ball':
+            threading.Thread(target=playsound, args=('ball_wall.wav',), daemon=True).start()
         
         if collide:
             if temp:
@@ -295,6 +309,9 @@ class RainbowBrick(Breakable):
 
         if collide == True:
             self._strength = self._strength - 1
+
+        if collide == True and obj_type == 'Ball':
+            threading.Thread(target=playsound, args=('ball_wall.wav',), daemon=True).start()
         
         if collide:
             self._touched = True
@@ -371,12 +388,3 @@ class ExplodingBrick(Brick):
         self._isVisible = False
         game.incrementScore(5)
         game.explodeBricks(self._pos, self._size)
-
-
-
-
-
-    
-
-    
-    

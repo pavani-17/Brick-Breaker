@@ -12,6 +12,8 @@ from brick import Breakable, Brick, ExplodingBrick, RainbowBrick
 from powerup import FastBall, LongPaddlePowerup, ShortPaddlePowerup, StickBall, ThruBall, MultiplyBall,ShootLaser, FireBall
 from laser import Laser
 from ufo import Ufo, Bomb
+import threading
+from playsound import playsound
 
 class Game:
 
@@ -117,6 +119,7 @@ class Game:
             temp = Bomb(np.array([pos[0] + size[0], pos[1] + size[1]/2]))
             self._bombs.append(temp)
             self.bombtime = time.time()
+            threading.Thread(target=playsound, args=('laser.wav',), daemon=True).start()
 
         if self._isUfo:
             if self._ufo.isVisible:
@@ -153,6 +156,7 @@ class Game:
 
     def createLaser(self):
         if(self.lastlaser + 1 < time.time() and self._laser):
+            threading.Thread(target=playsound, args=('laser.wav',), daemon=True).start()
             pos = self._paddle.getPosition()
             size = self._paddle.getSize()
             temp = Laser(np.array([pos[0], pos[1]+1]))
@@ -265,6 +269,7 @@ class Game:
         if(self._level == 2):
             self.bricks_pos = self.bricks_pos_l2
         elif (self._level == 3):
+            threading.Thread(target=playsound, args=('boss.wav',), daemon=True).start()
             self.bricks_pos = self.bricks_pos_l3
             pos = self._paddle.getPosition()
             size = self._paddle.getSize()
@@ -394,6 +399,7 @@ class Game:
             self._ufo.collideBall(ball, self)
 
     def explodeBricks(self, pos, size):
+        threading.Thread(target=playsound, args=('explosion.wav',), daemon=True).start()
         for j in range(self._len):
             i = self._brick[j]
             if i.isVisible():
@@ -408,7 +414,8 @@ class Game:
     def handleCollisionBallPaddle(self):
 
         collide = False
-
+        
+                    
         for i in self._ball:
             x1, y1 = i.getPosition()
             x2, y2 = self._paddle.getPosition()
@@ -418,6 +425,8 @@ class Game:
                 speed = y1 - y2 - w/2
                 if not i.isStuckPaddle():
                     collide = True
+                    threading.Thread(target=playsound, args=('ball.wav',), daemon=True).start()
+                    
                 i.collidePaddle(speed/2)
         
         for i in self._bombs:

@@ -3,6 +3,10 @@ import numpy as np
 from object import Object
 import config
 from colorama import Fore, Back
+import threading
+from playsound import playsound
+import threading
+from playsound import playsound
 
 
 class Ball(Object):
@@ -31,9 +35,11 @@ class Ball(Object):
         if self._pos[0] <= 1:
             self._vel[0] = - self._vel[0] 
             self._pos[0] = 1
+            threading.Thread(target=playsound, args=('ball.wav',), daemon=True).start()
         
         if self._pos[1] + self._vel[1] < 0 or self._pos[1] + self._vel[1] > config.WIDTH - 1:
             self._vel[1] = -self._vel[1]
+            threading.Thread(target=playsound, args=('ball.wav',), daemon=True).start()
         
         if self._pos[0] >= config.HEIGHT - 2:
             return 1
